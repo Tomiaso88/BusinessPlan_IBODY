@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Financiero – Centro de Estética</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Fira+Mono:wght@400;500&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0F0D;--bg2:#0F1612;--bg3:#141D18;--bg4:#1A2420;
+  --green:#2ECC7A;--gdim:rgba(46,204,122,0.12);--gborder:rgba(46,204,122,0.25);
+  --red:#E05555;--rdim:rgba(224,85,85,0.12);
+  --amber:#E0A030;--adim:rgba(224,160,48,0.12);
+  --text:#B8CCC4;--tdim:#5A7068;--tbright:#E8F4EE;
+  --border:rgba(46,204,122,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;min-height:100vh;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
+.logo{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--green);}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.tb{padding:6px 12px;background:transparent;border:1px solid transparent;color:var(--tdim);font-family:'Lato',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.tb.active{background:var(--gdim);border-color:var(--gborder);color:var(--green);}
+.tb:hover:not(.active){color:var(--tbright);}
+.genbtn{background:var(--green);color:#0A0F0D;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;border:none;padding:8px 16px;cursor:pointer;border-radius:2px;white-space:nowrap;}
+.genbtn:hover{opacity:0.85;}
+.panel{display:none;padding:28px;max-width:1200px;margin:0 auto;}
+.panel.active{display:block;}
+.slbl{font-family:'Fira Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
+.stitle{font-family:'Syne',sans-serif;font-size:20px;font-weight:600;color:var(--tbright);}
+.sh{margin-bottom:22px;}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:2px;margin-bottom:28px;}
+.kpi{background:var(--bg3);padding:18px 20px;border-top:2px solid transparent;}
+.kpi.g{border-color:var(--green);}.kpi.r{border-color:var(--red);}.kpi.a{border-color:var(--amber);}
+.klbl{font-family:'Fira Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tdim);margin-bottom:8px;}
+.kval{font-family:'Fira Mono',monospace;font-size:20px;font-weight:500;color:var(--tbright);line-height:1;}
+.kval.g{color:var(--green);}.kval.r{color:var(--red);}.kval.a{color:var(--amber);}
+.ksub{font-size:11px;color:var(--tdim);margin-top:4px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.card{background:var(--bg3);border:1px solid var(--border);padding:22px;margin-bottom:14px;}
+.ctitle{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--tbright);margin-bottom:18px;}
+.srow{margin-bottom:14px;}
+.shdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.sname{font-size:12px;color:var(--text);}
+.sval{font-family:'Fira Mono',monospace;font-size:11px;color:var(--green);background:var(--gdim);padding:2px 7px;border-radius:2px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:3px;background:var(--bg4);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--green);border-radius:50%;}
+.dtable{width:100%;border-collapse:collapse;}
+.dtable th{font-family:'Fira Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tdim);padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.dtable td{padding:9px 10px;border-bottom:1px solid rgba(46,204,122,0.06);}
+.dtable tr:hover td{background:var(--gdim);}
+.ecell{font-family:'Fira Mono',monospace;font-size:11px;color:var(--tbright);background:transparent;border:none;outline:none;width:100%;border-bottom:1px dashed var(--tdim);padding:2px 3px;}
+.ecell:focus{border-color:var(--green);color:var(--green);}
+.mbadge{font-family:'Fira Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px;display:inline-block;}
+.bh{background:var(--gdim);color:var(--green);}.bm{background:var(--adim);color:var(--amber);}.bl{background:var(--rdim);color:var(--red);}
+.scgroup{display:flex;gap:2px;margin-bottom:22px;flex-wrap:wrap;}
+.scbtn{flex:1;min-width:110px;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--tdim);font-family:'Syne',sans-serif;font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.scbtn.active{background:var(--gdim);border-color:var(--green);color:var(--green);}
+.roimtr{background:var(--bg3);border:1px solid var(--border);padding:28px;margin-bottom:14px;text-align:center;}
+.roibig{font-family:'Syne',sans-serif;font-size:60px;font-weight:700;line-height:1;margin-bottom:8px;}
+.mbar{display:flex;gap:3px;margin-top:20px;flex-wrap:wrap;justify-content:center;}
+.mblk{width:34px;height:34px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Fira Mono',monospace;font-size:8px;color:var(--tdim);border-radius:2px;}
+.mblk.f{background:var(--gdim);border-color:var(--green);color:var(--green);}
+.mblk.p{background:var(--adim);border-color:var(--amber);color:var(--amber);}
+.ninput{background:var(--bg4);border:1px solid var(--border);color:var(--tbright);font-family:'Fira Mono',monospace;font-size:12px;padding:7px 10px;outline:none;width:100%;border-radius:2px;}
+.ninput:focus{border-color:var(--green);}
+.ilbl{font-size:11px;color:var(--tdim);margin-bottom:5px;display:block;}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(46,204,122,0.07);}
+.rrow:last-child{border-bottom:none;}
+.rlbl{font-size:12px;color:var(--tdim);}
+.rval{font-family:'Fira Mono',monospace;font-size:15px;color:var(--tbright);}
+.rval.pos{color:var(--green);}.rval.neg{color:var(--red);}.rval.warn{color:var(--amber);}
+.vchart{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:14px;}
+.vbw{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.vbt{width:100%;flex:1;background:var(--bg4);border-radius:2px;display:flex;align-items:flex-end;}
+.vbf{width:100%;border-radius:2px 2px 0 0;transition:height 0.6s;}
+.vbl{font-family:'Fira Mono',monospace;font-size:8px;color:var(--tdim);text-align:center;}
+.vbv{font-family:'Fira Mono',monospace;font-size:9px;color:var(--green);}
+.addbtn{background:transparent;border:1px dashed var(--gborder);color:var(--green);font-family:'Fira Mono',monospace;font-size:11px;padding:9px 18px;cursor:pointer;width:100%;margin-top:7px;}
+.addbtn:hover{background:var(--gdim);}
+.delbtn{background:transparent;border:none;color:var(--tdim);cursor:pointer;font-size:13px;padding:2px 5px;}
+.delbtn:hover{color:var(--red);}
+footer{text-align:center;padding:22px;font-family:'Fira Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--tdim);border-top:1px solid var(--border);margin-top:40px;}
+@media(max-width:768px){.panel{padding:14px;}.two{grid-template-columns:1fr;}.topbar{padding:10px 14px;}.roibig{font-size:38px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">&#8756; Simulador Financiero</div>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+    <div class="tabs">
+      <button class="tb active" onclick="showTab('dashboard',this)">Dashboard</button>
+      <button class="tb" onclick="showTab('tratamientos',this)">Tratamientos</button>
+      <button class="tb" onclick="showTab('costos',this)">Costos</button>
+      <button class="tb" onclick="showTab('escenarios',this)">Escenarios</button>
+      <button class="tb" onclick="showTab('roi',this)">ROI</button>
+    </div>
+    <button class="genbtn" onclick="generarPresentacion()">&#9654; Generar Presentaci&oacute;n</button>
+  </div>
+</div>
+
+<div id="tab-dashboard" class="panel active">
+  <div class="sh" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div><div class="slbl">// tiempo real</div><div class="stitle">Dashboard Financiero</div></div>
+    <div style="font-family:'Fira Mono',monospace;font-size:9px;color:var(--tdim);">Valores en ARS &middot; Auto-actualizado</div>
+  </div>
+  <div class="krow" id="kpi-row"></div>
+  <div class="two">
+    <div class="card"><div class="ctitle">Ingresos por &Aacute;rea</div><div class="vchart" id="vchart"></div></div>
+    <div class="card"><div class="ctitle">Distribuci&oacute;n de Costos</div><div id="costbreak"></div></div>
+  </div>
+  <div class="card"><div class="ctitle">Resultado Mensual</div><div id="resultado"></div></div>
+</div>
+
+<div id="tab-tratamientos" class="panel">
+  <div class="sh"><div class="slbl">// edit&aacute; cada fila</div><div class="stitle">Tabla de Tratamientos</div></div>
+  <div class="card" style="overflow-x:auto;">
+    <table class="dtable">
+      <thead><tr><th>Tratamiento</th><th>Precio ($)</th><th>Costo Var %</th><th>Costo Fijo ($)</th><th>Turnos/d&iacute;a</th><th>Margen</th><th>Ingreso/mes</th><th></th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <button class="addbtn" onclick="addT()">+ Agregar tratamiento</button>
+  </div>
+  <div class="card"><div class="ctitle">Totales</div><div id="ttotals"></div></div>
+</div>
+
+<div id="tab-costos" class="panel">
+  <div class="sh"><div class="slbl">// sliders</div><div class="stitle">Estructura de Costos</div></div>
+  <div class="two">
+    <div class="card">
+      <div class="ctitle">Costos Fijos Mensuales</div>
+      <div class="srow"><div class="shdr"><span class="sname">Alquiler</span><span class="sval" id="v-alq"></span></div><input type="range" id="sl-alq" min="1000000" max="20000000" step="100000" value="6050000" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Servicios</span><span class="sval" id="v-srv"></span></div><input type="range" id="sl-srv" min="500000" max="5000000" step="100000" value="2000000" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Insumos base</span><span class="sval" id="v-ins"></span></div><input type="range" id="sl-ins" min="200000" max="5000000" step="100000" value="1000000" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Sueldos</span><span class="sval" id="v-sue"></span></div><input type="range" id="sl-sue" min="5000000" max="60000000" step="500000" value="24400000" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Otros fijos</span><span class="sval" id="v-otr"></span></div><input type="range" id="sl-otr" min="0" max="10000000" step="100000" value="0" oninput="upd()"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Costos Financieros y Tributarios</div>
+      <div class="srow"><div class="shdr"><span class="sname">Impuestos sobre facturaci&oacute;n (%)</span><span class="sval" id="v-imp"></span></div><input type="range" id="sl-imp" min="0" max="35" step="0.5" value="15" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">% ventas financiadas</span><span class="sval" id="v-pfin"></span></div><input type="range" id="sl-pfin" min="0" max="100" step="5" value="70" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Costo del financiamiento (%)</span><span class="sval" id="v-cfin"></span></div><input type="range" id="sl-cfin" min="0" max="40" step="0.5" value="15" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">D&iacute;as operativos al mes</span><span class="sval" id="v-dias"></span></div><input type="range" id="sl-dias" min="18" max="30" step="1" value="26" oninput="upd()"></div>
+      <div style="margin-top:20px;padding:14px;background:var(--bg4);border-left:2px solid var(--green);">
+        <div class="slbl" style="margin-bottom:6px;">Financiamiento efectivo</div>
+        <div style="font-family:'Fira Mono',monospace;font-size:18px;color:var(--green);" id="fin-ef">$0</div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="ctitle">Resumen de Costos</div><div id="costsumm"></div></div>
+</div>
+
+<div id="tab-escenarios" class="panel">
+  <div class="sh"><div class="slbl">// simul&aacute; ocupaci&oacute;n</div><div class="stitle">Simulador de Escenarios</div></div>
+  <div class="scgroup">
+    <button class="scbtn" onclick="loadSc(40,this)">Pesimista<br><small>40%</small></button>
+    <button class="scbtn" onclick="loadSc(55,this)">Conservador<br><small>55%</small></button>
+    <button class="scbtn active" onclick="loadSc(65,this)">Base<br><small>65%</small></button>
+    <button class="scbtn" onclick="loadSc(80,this)">Optimista<br><small>80%</small></button>
+    <button class="scbtn" onclick="loadSc(95,this)">M&aacute;ximo<br><small>95%</small></button>
+  </div>
+  <div class="card">
+    <div class="ctitle">Ajuste manual</div>
+    <div class="two">
+      <div><div class="srow"><div class="shdr"><span class="sname">Ocupaci&oacute;n general (%)</span><span class="sval" id="v-ocup"></span></div><input type="range" id="sl-ocup" min="10" max="100" step="5" value="65" oninput="upd()"></div></div>
+      <div id="sc-results"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;"><div class="ctitle">Comparativo</div><div id="sc-compare"></div></div>
+</div>
+
+<div id="tab-roi" class="panel">
+  <div class="sh"><div class="slbl">// inversi&oacute;n y recupero</div><div class="stitle">ROI &amp; Recupero</div></div>
+  <div class="two" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="ctitle">Inversi&oacute;n Inicial</div>
+      <div style="margin-bottom:10px;"><label class="ilbl">Monto invertido (USD)</label><input type="number" class="ninput" id="inv-usd" value="150000" oninput="upd()"></div>
+      <div style="margin-bottom:10px;"><label class="ilbl">Tipo de cambio ARS/USD</label><input type="number" class="ninput" id="tc" value="1250" oninput="upd()"></div>
+      <div style="padding:14px;background:var(--bg4);"><div class="slbl" style="margin-bottom:4px;">Inversi&oacute;n en ARS</div><div style="font-family:'Fira Mono',monospace;font-size:20px;color:var(--amber);" id="inv-ars">$0</div></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Condiciones del recupero</div>
+      <div class="srow"><div class="shdr"><span class="sname">% ganancia al recupero</span><span class="sval" id="v-prec"></span></div><input type="range" id="sl-prec" min="10" max="100" step="5" value="100" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Inflaci&oacute;n mensual (%)</span><span class="sval" id="v-inf"></span></div><input type="range" id="sl-inf" min="0" max="15" step="0.5" value="3" oninput="upd()"></div>
+      <div style="padding:14px;background:var(--bg4);"><div class="slbl" style="margin-bottom:4px;">Disponible para recupero/mes</div><div style="font-family:'Fira Mono',monospace;font-size:20px;color:var(--green);" id="gan-rec">$0</div></div>
+    </div>
+  </div>
+  <div class="roimtr">
+    <div class="slbl" style="margin-bottom:14px;">Tiempo estimado de recupero</div>
+    <div class="roibig" id="roi-m">-</div>
+    <div style="font-family:'Fira Mono',monospace;font-size:11px;color:var(--tdim);">meses para recuperar la inversi&oacute;n</div>
+    <div style="margin:20px 0;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:center;gap:28px;flex-wrap:wrap;">
+      <div style="text-align:center;"><div style="font-family:'Fira Mono',monospace;font-size:16px;color:var(--amber);" id="roi-usd">$0</div><div style="font-size:9px;color:var(--tdim);margin-top:3px;letter-spacing:1px;">USD/mes recuperados</div></div>
+      <div style="text-align:center;"><div style="font-family:'Fira Mono',monospace;font-size:16px;color:var(--green);" id="roi-pct">0%</div><div style="font-size:9px;color:var(--tdim);margin-top:3px;letter-spacing:1px;">ROI anual</div></div>
+      <div style="text-align:center;"><div style="font-family:'Fira Mono',monospace;font-size:16px;color:var(--tbright);" id="roi-date">-</div><div style="font-size:9px;color:var(--tdim);margin-top:3px;letter-spacing:1px;">Fecha estimada</div></div>
+    </div>
+    <div style="text-align:left;padding:0 6px;"><div style="font-size:9px;color:var(--tdim);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Linea de tiempo</div><div class="mbar" id="mbar"></div></div>
+  </div>
+  <div class="card"><div class="ctitle">Proyecci&oacute;n 18 meses</div><div id="roi-tbl"></div></div>
+</div>
+
+<footer>Centro de Est&eacute;tica Integral &middot; Simulador Financiero &middot; Confidencial</footer>
+
+<script>
+var T=[
+  {n:'Ultraformer',p:800000,v:35,f:0,t:3},
+  {n:'IPL',p:550000,v:30,f:0,t:2},
+  {n:'Inyectables',p:600000,v:40,f:0,t:4},
+  {n:'Consulta Dermatologica',p:180000,v:50,f:0,t:6},
+  {n:'Limpieza Facial',p:130000,v:10,f:0,t:10},
+  {n:'Tratamiento Corporal',p:200000,v:15,f:0,t:5},
+  {n:'Masaje Relajante',p:120000,v:20,f:0,t:6},
+  {n:'Peeling Quimico',p:160000,v:25,f:0,t:4}
+];
+function fm(n){if(Math.abs(n)>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(Math.abs(n)>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+Math.round(n);}
+function ff(n){return'$'+Math.round(n).toLocaleString('es-AR');}
+function pc(p){return p.toFixed(1)+'%';}
+function g(id){return document.getElementById(id);}
+function sv(id){var e=g(id);return e?parseFloat(e.value):0;}
+function getSL(){return{alq:sv('sl-alq'),srv:sv('sl-srv'),ins:sv('sl-ins'),sue:sv('sl-sue'),otr:sv('sl-otr'),imp:sv('sl-imp')/100,pfin:sv('sl-pfin')/100,cfin:sv('sl-cfin')/100,dias:sv('sl-dias'),ocup:sv('sl-ocup')/100};}
+function calcT(dias,ocup){
+  var tot=0,tvar=0,ar={alto:0,cos:0,well:0,derm:0};
+  T.forEach(function(t){var ing=t.p*t.t*ocup*dias,cv=ing*(t.v/100)+t.f*dias;tot+=ing;tvar+=cv;var nm=t.n.toLowerCase();if(nm.indexOf('ultra')>=0||nm.indexOf('ipl')>=0||nm.indexOf('inyec')>=0)ar.alto+=ing;else if(nm.indexOf('limpieza')>=0||nm.indexOf('peel')>=0||nm.indexOf('corpor')>=0)ar.cos+=ing;else if(nm.indexOf('masaje')>=0||nm.indexOf('well')>=0||nm.indexOf('spa')>=0)ar.well+=ing;else ar.derm+=ing;});
+  return{tot:tot,tvar:tvar,ar:ar};
+}
+function calc(){
+  var sl=getSL(),tr=calcT(sl.dias,sl.ocup),fac=tr.tot,fijos=sl.alq+sl.srv+sl.ins+sl.sue+sl.otr,cvar=tr.tvar,imp=fac*sl.imp,cfin=fac*sl.pfin*sl.cfin,ctot=fijos+cvar+imp+cfin,gan=fac-ctot,mar=fac>0?gan/fac:0,fdia=sl.dias>0?fac/sl.dias:0,contrib=fac-cvar-imp-cfin,peq=contrib>0?(fijos/(contrib/Math.max(fac,1))):0;
+  return{fac:fac,fijos:fijos,cvar:cvar,imp:imp,cfin:cfin,ctot:ctot,gan:gan,mar:mar,fdia:fdia,peq:peq,sl:sl,tr:tr};
+}
+function upd(){
+  var sl=getSL(),c=calc();
+  var mp={alq:sl.alq,srv:sl.srv,ins:sl.ins,sue:sl.sue,otr:sl.otr};
+  Object.keys(mp).forEach(function(k){var e=g('v-'+k);if(e)e.textContent=fm(mp[k]);});
+  if(g('v-imp'))g('v-imp').textContent=pc(sv('sl-imp'));
+  if(g('v-pfin'))g('v-pfin').textContent=pc(sv('sl-pfin'));
+  if(g('v-cfin'))g('v-cfin').textContent=pc(sv('sl-cfin'));
+  if(g('v-dias'))g('v-dias').textContent=sl.dias+' dias';
+  if(g('v-ocup'))g('v-ocup').textContent=pc(sv('sl-ocup'));
+  if(g('v-prec'))g('v-prec').textContent=pc(sv('sl-prec'));
+  if(g('v-inf'))g('v-inf').textContent=pc(sv('sl-inf'));
+  if(g('fin-ef'))g('fin-ef').textContent=fm(c.cfin);
+  updKPIs(c);updDash(c);updTable();updCostSumm(c);updScen(c);updROI(c);
+}
+function updKPIs(c){
+  var pos=c.gan>=0,kpis=[{l:'Facturacion Mensual',v:fm(c.fac),cls:'g',s:fm(c.fdia)+'/dia'},{l:'Costos Totales',v:fm(c.ctot),cls:'a',s:pc(c.ctot/Math.max(c.fac,1)*100)+' fac'},{l:'Ganancia Neta',v:fm(c.gan),cls:pos?'g':'r',s:pc(c.mar*100)+' margen'},{l:'Punto Equilibrio',v:fm(c.peq),cls:'a',s:'diario minimo'},{l:'Ocupacion',v:pc(sv('sl-ocup')),cls:sv('sl-ocup')>=60?'g':'r',s:sv('sl-dias')+' dias/mes'},{l:'ROI Mensual',v:c.gan>0?pc(c.gan/Math.max(c.fac,1)*100):'N/A',cls:pos?'g':'r',s:'sobre fac'}];
+  var r=g('kpi-row');if(!r)return;
+  r.innerHTML=kpis.map(function(k){return'<div class="kpi '+k.cls+'"><div class="klbl">'+k.l+'</div><div class="kval '+k.cls+'">'+k.v+'</div><div class="ksub">'+k.s+'</div></div>';}).join('');
+}
+function updDash(c){
+  var vc=g('vchart');
+  if(vc){var ar=[{n:'Alto Ticket',v:c.tr.ar.alto,col:'#2ECC7A'},{n:'Cosmetologia',v:c.tr.ar.cos,col:'#4A9A6A'},{n:'Wellness',v:c.tr.ar.well,col:'#2A6A4A'},{n:'Dermatologia',v:c.tr.ar.derm,col:'#1A4A2A'}],mx=Math.max.apply(null,ar.map(function(a){return a.v;}))||1;vc.innerHTML=ar.map(function(a){return'<div class="vbw"><div class="vbv">'+fm(a.v)+'</div><div class="vbt"><div class="vbf" style="height:'+((a.v/mx)*100).toFixed(0)+'%;background:'+a.col+'"></div></div><div class="vbl">'+a.n+'</div></div>';}).join('');}
+  var cb=g('costbreak');
+  if(cb){var cs=[{n:'Sueldos',v:c.sl.sue},{n:'Costo Variable',v:c.cvar},{n:'Impuestos',v:c.imp},{n:'Financiamiento',v:c.cfin},{n:'Alquiler',v:c.sl.alq},{n:'Servicios',v:c.sl.srv}],mx2=Math.max.apply(null,cs.map(function(x){return x.v;}))||1;cb.innerHTML=cs.map(function(x){return'<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--tdim);">'+x.n+'</span><span style="font-family:monospace;font-size:11px;color:var(--tbright);">'+fm(x.v)+'</span></div><div style="height:3px;background:var(--bg4);border-radius:2px;"><div style="height:100%;width:'+((x.v/mx2)*100).toFixed(0)+'%;background:var(--green);border-radius:2px;"></div></div></div>';}).join('');}
+  var rm=g('resultado');
+  if(rm){var pos=c.gan>=0;rm.innerHTML='<div class="rrow"><span class="rlbl">Facturacion total</span><span class="rval">'+ff(c.fac)+'</span></div><div class="rrow"><span class="rlbl">- Costos fijos</span><span class="rval neg">-'+ff(c.fijos)+'</span></div><div class="rrow"><span class="rlbl">- Costos variables</span><span class="rval neg">-'+ff(c.cvar)+'</span></div><div class="rrow"><span class="rlbl">- Impuestos</span><span class="rval neg">-'+ff(c.imp)+'</span></div><div class="rrow"><span class="rlbl">- Financiamiento</span><span class="rval neg">-'+ff(c.cfin)+'</span></div><div class="rrow" style="border-top:1px solid var(--gborder);padding-top:14px;margin-top:4px;"><span class="rlbl" style="font-weight:600;color:var(--tbright);font-size:14px;">GANANCIA NETA</span><span class="rval '+(pos?'pos':'neg')+'" style="font-size:20px;">'+ff(c.gan)+'</span></div>';}
+}
+function updTable(){
+  var sl=getSL(),bd=g('tbody');if(!bd)return;
+  var ti=0,tv=0;
+  bd.innerHTML=T.map(function(t,i){var ing=t.p*t.t*sl.ocup*sl.dias,cv=ing*(t.v/100)+t.f*sl.dias,net=ing-cv,mp=ing>0?net/ing*100:0;ti+=ing;tv+=cv;var bc=mp>60?'bh':mp>35?'bm':'bl';return'<tr><td><input class="ecell" value="'+t.n+'" onchange="T['+i+'].n=this.value;upd()"></td><td><input class="ecell" style="width:100px" type="number" value="'+t.p+'" onchange="T['+i+'].p=parseFloat(this.value)||0;upd()"></td><td><input class="ecell" style="width:45px" type="number" value="'+t.v+'" onchange="T['+i+'].v=parseFloat(this.value)||0;upd()">%</td><td><input class="ecell" style="width:90px" type="number" value="'+t.f+'" onchange="T['+i+'].f=parseFloat(this.value)||0;upd()"></td><td><input class="ecell" style="width:45px" type="number" value="'+t.t+'" onchange="T['+i+'].t=parseFloat(this.value)||0;upd()"></td><td><span class="mbadge '+bc+'">'+mp.toFixed(0)+'%</span></td><td style="font-family:monospace;font-size:11px;color:var(--green);">'+fm(ing)+'</td><td><button class="delbtn" onclick="delT('+i+')">x</button></td></tr>';}).join('');
+  var tt=g('ttotals');if(tt)tt.innerHTML='<div class="rrow"><span class="rlbl">Ingresos totales</span><span class="rval pos">'+ff(ti)+'</span></div><div class="rrow"><span class="rlbl">Costos variables</span><span class="rval neg">-'+ff(tv)+'</span></div><div class="rrow"><span class="rlbl">Contribucion marginal</span><span class="rval pos">'+ff(ti-tv)+'</span></div><div class="rrow"><span class="rlbl">Margen promedio</span><span class="rval">'+(ti>0?pc((ti-tv)/ti*100):'--')+'</span></div>';
+}
+function addT(){T.push({n:'Nuevo Tratamiento',p:100000,v:25,f:0,t:3});upd();}
+function delT(i){if(T.length>1){T.splice(i,1);upd();}}
+function updCostSumm(c){var cs=g('costsumm');if(!cs)return;cs.innerHTML='<div class="rrow"><span class="rlbl">Costos fijos</span><span class="rval warn">'+ff(c.fijos)+'</span></div><div class="rrow"><span class="rlbl">Costos variables</span><span class="rval warn">'+ff(c.cvar)+'</span></div><div class="rrow"><span class="rlbl">Impuestos</span><span class="rval warn">'+ff(c.imp)+'</span></div><div class="rrow"><span class="rlbl">Financiamiento</span><span class="rval warn">'+ff(c.cfin)+'</span></div><div class="rrow" style="border-top:1px solid var(--gborder);padding-top:12px;"><span class="rlbl" style="font-weight:600;color:var(--tbright);">COSTO TOTAL</span><span class="rval neg" style="font-size:18px;">'+ff(c.ctot)+'</span></div>';}
+function loadSc(ocup,btn){g('sl-ocup').value=ocup;document.querySelectorAll('.scbtn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');upd();}
+function updScen(c){
+  var sr=g('sc-results');
+  if(sr){var pos=c.gan>=0;sr.innerHTML='<div class="rrow"><span class="rlbl">Facturacion mensual</span><span class="rval">'+ff(c.fac)+'</span></div><div class="rrow"><span class="rlbl">Facturacion diaria</span><span class="rval">'+ff(c.fdia)+'</span></div><div class="rrow"><span class="rlbl">Punto equilibrio/dia</span><span class="rval warn">'+ff(c.peq)+'</span></div><div class="rrow"><span class="rlbl">Ganancia neta</span><span class="rval '+(pos?'pos':'neg')+'">'+ff(c.gan)+'</span></div><div class="rrow"><span class="rlbl">Margen neto</span><span class="rval '+(pos?'pos':'neg')+'">'+pc(c.mar*100)+'</span></div>';}
+  var sc=g('sc-compare');if(!sc)return;
+  var cur=g('sl-ocup').value,scens=[{l:'Pesimista',o:40},{l:'Conservador',o:55},{l:'Base',o:65},{l:'Optimista',o:80},{l:'Maximo',o:95}];
+  var rows=scens.map(function(s){g('sl-ocup').value=s.o;var f=calc();g('sl-ocup').value=cur;var pos=f.gan>=0;return'<tr><td style="font-size:12px;color:var(--tbright);padding:9px 10px;">'+s.l+'</td><td style="font-family:monospace;font-size:10px;color:var(--tdim);padding:9px 10px;">'+s.o+'%</td><td style="font-family:monospace;font-size:10px;color:var(--tbright);padding:9px 10px;">'+fm(f.fac)+'</td><td style="font-family:monospace;font-size:10px;color:'+(pos?'var(--green)':'var(--red)')+';padding:9px 10px;">'+fm(f.gan)+'</td><td style="font-family:monospace;font-size:10px;color:'+(pos?'var(--green)':'var(--red)')+';padding:9px 10px;">'+pc(f.mar*100)+'</td></tr>';}).join('');
+  sc.innerHTML='<div style="overflow-x:auto;"><table class="dtable" style="width:100%;"><thead><tr><th>Escenario</th><th>Ocupacion</th><th>Facturacion</th><th>Ganancia</th><th>Margen</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function updROI(c){
+  var invU=parseFloat(g('inv-usd')&&g('inv-usd').value)||150000,tc=parseFloat(g('tc')&&g('tc').value)||1250,invA=invU*tc,prec=sv('sl-prec')/100,ganR=Math.max(c.gan,0)*prec,mes=ganR>0?Math.ceil(invA/ganR):0,roiA=invA>0?(ganR*12/invA*100).toFixed(1):0;
+  if(g('inv-ars'))g('inv-ars').textContent=ff(invA);if(g('gan-rec'))g('gan-rec').textContent=ff(ganR);
+  var col=mes===0?'var(--tdim)':mes<=12?'var(--green)':mes<=24?'var(--amber)':'var(--red)';
+  if(g('roi-m')){g('roi-m').textContent=ganR>0?mes:'inf';g('roi-m').style.color=col;}
+  if(g('roi-usd'))g('roi-usd').textContent='USD '+Math.round(ganR/tc).toLocaleString('es-AR');
+  if(g('roi-pct'))g('roi-pct').textContent=pc(parseFloat(roiA));
+  if(g('roi-date')&&ganR>0){var d=new Date();d.setMonth(d.getMonth()+mes);g('roi-date').textContent=d.toLocaleDateString('es-AR',{month:'short',year:'numeric'});}
+  var bar=g('mbar');
+  if(bar){var tot=Math.min(Math.max(mes+3,12),36),ac=0,h='';for(var m=1;m<=tot;m++){ac+=ganR;var f2=ac>=invA,p2=!f2&&(ac+ganR>invA);h+='<div class="mblk '+(f2?'f':p2?'p':'')+'" title="Mes '+m+': '+fm(ac)+'">M'+m+'</div>';}bar.innerHTML=h;}
+  var rt=g('roi-tbl');
+  if(rt&&ganR>0){var ac2=0,rows2=Array.from({length:18},function(_,i){var mes2=i+1;ac2+=ganR;var rest=Math.max(invA-ac2,0),cub=Math.min(ac2/invA*100,100),isR=ac2>=invA;return'<tr><td style="font-family:monospace;font-size:10px;color:var(--tdim);padding:7px 10px;">Mes '+mes2+'</td><td style="font-family:monospace;font-size:10px;color:var(--green);padding:7px 10px;">'+ff(ganR)+'</td><td style="font-family:monospace;font-size:10px;color:var(--tbright);padding:7px 10px;">'+ff(ac2)+'</td><td style="font-family:monospace;font-size:10px;color:'+(isR?'var(--green)':'var(--amber)')+';padding:7px 10px;">'+ff(rest)+'</td><td style="padding:7px 10px;"><div style="height:3px;background:var(--bg4);width:80px;display:inline-block;vertical-align:middle;border-radius:2px;"><div style="height:100%;width:'+cub.toFixed(0)+'%;background:'+(isR?'var(--green)':'var(--amber)')+';border-radius:2px;"></div></div> <span style="font-family:monospace;font-size:9px;color:var(--tdim);">'+cub.toFixed(0)+'%</span></td>'+(isR?'<td style="font-family:monospace;font-size:9px;color:var(--green);padding:7px 10px;">OK</td>':'<td></td>')+'</tr>';}).join('');rt.innerHTML='<div style="overflow-x:auto;"><table class="dtable" style="width:100%;"><thead><tr><th>Periodo</th><th>Gan. mensual</th><th>Acumulado</th><th>Restante</th><th>Progreso</th><th></th></tr></thead><tbody>'+rows2+'</tbody></table></div>';}
+  else if(rt){rt.innerHTML='<p style="color:var(--tdim);font-size:12px;padding:18px 0;">Sin ganancia positiva en el escenario actual.</p>';}
+}
+function showTab(id,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('active');});
+  var panel=g('tab-'+id);if(panel)panel.classList.add('active');
+  if(btn)btn.classList.add('active');
+  upd();
+}
+function generarPresentacion(){
+  var c=calc(),sl=c.sl,invU=parseFloat(g('inv-usd')&&g('inv-usd').value)||150000,tc=parseFloat(g('tc')&&g('tc').value)||1250,invA=invU*tc,prec=sv('sl-prec')/100,ganR=Math.max(c.gan,0)*prec,mes=ganR>0?Math.ceil(invA/ganR):0,roiA=invA>0?(ganR*12/invA*100).toFixed(1):0,bdate='--';
+  if(ganR>0){var bd=new Date();bd.setMonth(bd.getMonth()+mes);bdate=bd.toLocaleDateString('es-AR',{month:'long',year:'numeric'});}
+  var topT=T.slice().map(function(t){return{n:t.n,p:t.p,ing:t.p*t.t*sl.ocup*sl.dias,mar:(1-t.v/100)*100};}).sort(function(a,b){return b.ing-a.ing;}).slice(0,6);
+  var mHTML='',ac=0;for(var m=1;m<=Math.min(mes+3,24);m++){ac+=ganR;var f=ac>=invA,pp=!f&&(ac+ganR>invA);mHTML+='<div style="width:26px;height:26px;border:1px solid '+(f?'rgba(46,204,122,0.5)':pp?'rgba(224,160,48,0.5)':'rgba(201,169,110,0.2)')+';display:flex;align-items:center;justify-content:center;font-size:7px;border-radius:2px;background:'+(f?'rgba(46,204,122,0.15)':pp?'rgba(224,160,48,0.15)':'transparent')+';color:'+(f?'#2ECC7A':pp?'#E0A030':'#7A7060')+';">M'+m+'</div>';}
+  var bHTML=[{n:'Facturacion',p:100,c:'#C9A96E'},{n:'Sueldos',p:Math.round(sl.sue/Math.max(c.fac,1)*100),c:'#8A7A5A'},{n:'Costos Var',p:Math.round(c.cvar/Math.max(c.fac,1)*100),c:'#6A5A3A'},{n:'Impuestos',p:Math.round(c.imp/Math.max(c.fac,1)*100),c:'#5A5A2A'},{n:'Financiam',p:Math.round(c.cfin/Math.max(c.fac,1)*100),c:'#7A3A2A'},{n:'Ganancia',p:Math.max(0,Math.round(c.gan/Math.max(c.fac,1)*100)),c:'#2ECC7A'}].map(function(b){return'<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#7A7060;">'+b.n+'</span><span style="font-size:10px;color:#C9A96E;">'+b.p+'%</span></div><div style="height:3px;background:#242118;border-radius:2px;"><div style="height:100%;width:'+b.p+'%;background:'+b.c+';border-radius:2px;"></div></div></div>';}).join('');
+  var trows=topT.map(function(t){var bc=t.mar>60?'rgba(46,204,122,0.12);color:#2ECC7A':t.mar>35?'rgba(224,160,48,0.12);color:#E0A030':'rgba(224,85,85,0.12);color:#E05555';return'<tr><td style="padding:10px 12px;color:#E8F4EE;font-size:12px;border-bottom:1px solid rgba(201,169,110,0.07);">'+t.n+'</td><td style="padding:10px 12px;font-family:monospace;font-size:12px;color:#E8C98A;border-bottom:1px solid rgba(201,169,110,0.07);">'+ff(t.p)+'</td><td style="padding:10px 12px;border-bottom:1px solid rgba(201,169,110,0.07);"><span style="font-size:10px;padding:2px 7px;border-radius:2px;background:'+bc+';">'+t.mar.toFixed(0)+'%</span></td><td style="padding:10px 12px;font-family:monospace;font-size:12px;color:#E8F4EE;border-bottom:1px solid rgba(201,169,110,0.07);">'+fm(t.ing)+'</td></tr>';}).join('');
+  var G='Cormorant Garamond';
+  var parts=[];
+  parts.push('<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">');
+  parts.push('<title>Plan de Negocios - Centro de Estetica Integral</title>');
+  parts.push('<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">');
+  parts.push('<style>*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{background:#0D0C0A;color:#D4C9B8;font-family:"DM Sans",sans-serif;font-weight:300;}nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(13,12,10,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,169,110,0.2);}.nl{font-family:"'+G+'",serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#C9A96E;}.na{display:flex;gap:24px;}.na a{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;text-decoration:none;}section{padding:88px 48px;max-width:1080px;margin:0 auto;}.ey{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#C9A96E;margin-bottom:12px;}.st{font-family:"'+G+'",serif;font-size:clamp(24px,4vw,44px);font-weight:300;color:#F5EFE6;margin-bottom:40px;line-height:1.2;}.st em{font-style:italic;color:#C9A96E;}.fs{background:#141210;padding:88px 0;}.fs section{padding-top:0;padding-bottom:0;}.rev{opacity:0;transform:translateY(22px);transition:opacity 0.7s,transform 0.7s;}.rev.vis{opacity:1;transform:none;}@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@media(max-width:768px){nav{padding:12px 18px;}.na{display:none;}section{padding:56px 18px;}.hi{padding:100px 18px 56px!important;}.hs{gap:20px!important;flex-wrap:wrap;}.tc,.rc{grid-template-columns:1fr!important;}}</style>');
+  parts.push('</head><body>');
+  parts.push('<nav><div class="nl">Centro de Estetica Integral</div><div class="na"><a href="#un">Unidades</a><a href="#fin">Financiero</a><a href="#tr">Tratamientos</a><a href="#roi">ROI</a></div></nav>');
+  parts.push('<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">');
+  parts.push('<div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,169,110,0.08),transparent 70%);"></div>');
+  parts.push('<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(201,169,110,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,0.1) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);opacity:0.3;"></div>');
+  parts.push('<div class="hi" style="position:relative;text-align:center;padding:120px 48px 80px;">');
+  parts.push('<div style="font-size:10px;letter-spacing:5px;text-transform:uppercase;color:#C9A96E;margin-bottom:24px;animation:fu 0.8s ease both;">Plan de Negocios &middot; 2025 &middot; Confidencial</div>');
+  parts.push('<h1 style="font-family:&quot;'+G+'&quot;,serif;font-size:clamp(40px,7vw,84px);font-weight:300;line-height:1.05;color:#F5EFE6;animation:fu 0.8s 0.15s ease both;">Centro de Estetica<br><em style="font-style:italic;color:#C9A96E;">Integral</em></h1>');
+  parts.push('<p style="max-width:500px;margin:24px auto 0;font-size:14px;line-height:1.7;color:#7A7060;animation:fu 0.8s 0.3s ease both;">Modelo multidisciplinario de alta gama combinando medicina estetica, dermatologia y wellness.</p>');
+  parts.push('<div style="width:56px;height:1px;background:#C9A96E;margin:32px auto;animation:fu 0.8s 0.45s ease both;"></div>');
+  parts.push('<div class="hs" style="display:flex;gap:48px;justify-content:center;animation:fu 0.8s 0.6s ease both;">');
+  [[fm(c.fac),'Facturacion Mensual','#E8C98A'],[fm(c.gan),'Ganancia Neta',c.gan>=0?'#2ECC7A':'#E05555'],['9','Boxes Operativos','#E8C98A'],[(sl.ocup*100).toFixed(0)+'%','Ocupacion','#E8C98A']].forEach(function(s){parts.push('<div style="text-align:center;"><div style="font-family:&quot;'+G+'&quot;,serif;font-size:38px;font-weight:300;color:'+s[2]+';">'+s[0]+'</div><div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#7A7060;margin-top:4px;">'+s[1]+'</div></div>');});
+  parts.push('</div></div></div>');
+  parts.push('<section id="un" class="rev"><div class="ey">01 - Concepto del Negocio</div><h2 class="st">Cinco unidades,<br><em>una experiencia</em></h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2px;">');
+  [['01','Medicina Estetica','Inyectables · IPL · Ultraformer'],['02','Dermatologia Medica','Diagnostico · Clinica'],['03','Estetica Corporal','Aparatologia avanzada'],['04','Cosmetologia Facial','Limpiezas · Tratamientos'],['05','Wellness y Spa','Masajes · Relajacion']].forEach(function(u){parts.push('<div style="background:#1C1A16;padding:28px 22px;border-top:2px solid transparent;transition:border-color 0.3s;" onmouseover="this.style.borderColor=\'#C9A96E\'" onmouseout="this.style.borderColor=\'transparent\'"><div style="font-family:&quot;'+G+'&quot;,serif;font-size:42px;font-weight:300;color:rgba(201,169,110,0.18);line-height:1;margin-bottom:10px;">'+u[0]+'</div><div style="font-size:13px;font-weight:500;color:#F5EFE6;margin-bottom:6px;">'+u[1]+'</div><div style="font-size:11px;color:#7A7060;line-height:1.6;">'+u[2]+'</div></div>');});
+  parts.push('</div></section>');
+  parts.push('<div class="fs"><section class="rev"><div class="ey">02 - Capacidad Operativa</div><h2 class="st">Infraestructura<br><em>escalable</em></h2><div style="display:flex;gap:2px;flex-wrap:wrap;">');
+  [['Boxes Operativos','9','10 totales'],['Horario','11h','9 a 20 hs'],['Dias al mes',''+sl.dias,'operativos'],['Ocupacion',(sl.ocup*100).toFixed(0)+'%','del total']].forEach(function(cx){parts.push('<div style="flex:1;min-width:155px;background:#1C1A16;padding:32px 24px;text-align:center;"><div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#7A7060;margin-bottom:12px;">'+cx[0]+'</div><div style="font-family:&quot;'+G+'&quot;,serif;font-size:38px;font-weight:300;color:#E8C98A;">'+cx[1]+'</div><div style="font-size:11px;color:#7A7060;margin-top:6px;">'+cx[2]+'</div></div>');});
+  parts.push('</div></section></div>');
+  parts.push('<section id="fin" class="rev"><div class="ey">03 - Proyeccion Financiera</div><h2 class="st">Numeros que<br><em>respaldan</em></h2><div class="tc" style="display:grid;grid-template-columns:1fr 1fr;gap:36px;"><div>');
+  [['Facturacion mensual',ff(c.fac),'#E8C98A'],['Facturacion diaria',ff(c.fdia),'#D4C9B8'],['Costos fijos','-'+ff(c.fijos),'#E05555'],['Costos variables','-'+ff(c.cvar),'#E05555'],['Impuestos','-'+ff(c.imp),'#E05555'],['Financiamiento','-'+ff(c.cfin),'#E05555']].forEach(function(r){parts.push('<div style="display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(201,169,110,0.18);"><span style="font-size:12px;color:#7A7060;">'+r[0]+'</span><span style="font-family:&quot;'+G+'&quot;,serif;font-size:20px;font-weight:300;color:'+r[2]+';">'+r[1]+'</span></div>');});
+  parts.push('<div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 0;border-top:1px solid rgba(201,169,110,0.3);margin-top:4px;"><span style="font-size:14px;font-weight:500;color:#F5EFE6;">GANANCIA NETA</span><span style="font-family:&quot;'+G+'&quot;,serif;font-size:28px;font-weight:300;color:'+(c.gan>=0?'#2ECC7A':'#E05555')+';">'+ff(c.gan)+'</span></div>');
+  parts.push('<div style="margin-top:14px;padding:14px;background:#242118;border-left:2px solid #C9A96E;"><div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#C9A96E;margin-bottom:5px;">Punto de Equilibrio</div><div style="font-family:&quot;'+G+'&quot;,serif;font-size:24px;color:#F5EFE6;">'+ff(c.peq)+'</div><div style="font-size:10px;color:#7A7060;margin-top:3px;">facturacion diaria minima</div></div>');
+  parts.push('</div><div>'+bHTML+'</div></div></section>');
+  parts.push('<div class="fs"><section id="tr" class="rev"><div class="ey">04 - Principales Tratamientos</div><h2 class="st">Mix de<br><em>servicios</em></h2><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>');
+  ['Tratamiento','Precio','Margen','Ingreso/mes'].forEach(function(h){parts.push('<th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;padding:9px 12px;text-align:left;border-bottom:1px solid rgba(201,169,110,0.2);">'+h+'</th>');});
+  parts.push('</tr></thead><tbody>'+trows+'</tbody></table></div></section></div>');
+  parts.push('<section id="roi" class="rev"><div class="ey">05 - ROI y Recupero de Inversion</div><h2 class="st">Inversion de<br><em>USD '+invU.toLocaleString('es-AR')+'</em></h2>');
+  parts.push('<div style="background:#1C1A16;border:1px solid rgba(201,169,110,0.2);padding:48px 36px;text-align:center;margin-bottom:2px;">');
+  parts.push('<div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#C9A96E;margin-bottom:14px;">Recupero estimado</div>');
+  parts.push('<div style="font-family:&quot;'+G+'&quot;,serif;font-size:96px;font-weight:300;line-height:1;color:'+(mes<=12?'#2ECC7A':mes<=24?'#E0A030':'#E05555')+';">'+(mes>0?mes:'inf')+'</div>');
+  parts.push('<div style="font-size:12px;color:#7A7060;letter-spacing:1px;margin-top:6px;">meses para recuperar la inversion completa</div>');
+  if(mes>0){parts.push('<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(201,169,110,0.2);"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;margin-bottom:12px;">Linea de tiempo</div><div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;">'+mHTML+'</div></div>');}
+  parts.push('</div><div style="display:flex;gap:2px;flex-wrap:wrap;">');
+  [['Inversion ARS',ff(invA),'#E0A030'],['Recupero/mes',ff(ganR),'#2ECC7A'],['ROI Anual',roiA+'%','#2ECC7A'],['Fecha recupero',bdate,'#E8C98A']].forEach(function(r){parts.push('<div style="flex:1;min-width:130px;background:#1C1A16;padding:24px;text-align:center;"><div style="font-family:&quot;'+G+'&quot;,serif;font-size:24px;font-weight:300;color:'+r[2]+';">'+r[1]+'</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;margin-top:5px;">'+r[0]+'</div></div>');});
+  parts.push('</div></section>');
+  parts.push('<div style="padding:0 48px 88px;max-width:1080px;margin:0 auto;"><div style="background:#1C1A16;border:1px solid rgba(201,169,110,0.2);padding:48px;text-align:center;" class="rev">');
+  parts.push('<div style="font-family:&quot;'+G+'&quot;,serif;font-size:clamp(24px,4vw,46px);font-weight:300;color:#F5EFE6;margin-bottom:18px;">El modelo funciona<br><em style="font-style:italic;color:#C9A96E;">con disciplina</em></div>');
+  parts.push('<p style="font-size:13px;color:#7A7060;max-width:520px;margin:0 auto;line-height:1.8;">Alta capacidad de generacion de ingresos, estructura escalable y rentabilidad positiva. El exito depende de la gestion de agenda, el ticket promedio y el control financiero.</p>');
+  parts.push('<div style="display:flex;gap:36px;justify-content:center;flex-wrap:wrap;margin-top:36px;">');
+  [[fm(c.fac),'Facturacion mensual','#E8C98A'],[(c.mar*100).toFixed(1)+'%','Margen neto','#2ECC7A'],[(mes>0?mes+'m':'--'),'Recupero inversion','#E8C98A'],[roiA+'%','ROI anual','#2ECC7A']].forEach(function(s){parts.push('<div style="text-align:center;"><div style="font-family:&quot;'+G+'&quot;,serif;font-size:32px;font-weight:300;color:'+s[2]+';">'+s[0]+'</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;margin-top:4px;">'+s[1]+'</div></div>');});
+  parts.push('</div></div></div>');
+  parts.push('<footer style="text-align:center;padding:32px 48px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A7060;border-top:1px solid rgba(201,169,110,0.2);"><span style="color:#C9A96E;">Centro de Estetica Integral</span> &middot; Plan de Negocios 2025 &middot; Confidencial</footer>');
+  parts.push('<scr'+'ipt>var rs=document.querySelectorAll(".rev");var ob=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add("vis");});},{threshold:0.08});rs.forEach(function(el){ob.observe(el);});<\/scr'+'ipt>');
+  parts.push('</body></html>');
+  var blob=new Blob([parts.join('')],{type:'text/html'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
+upd();
+</script>
+</body>
+</html>

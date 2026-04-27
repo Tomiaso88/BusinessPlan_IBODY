@@ -808,11 +808,12 @@ async function guardarTodo(){
     var r2=await fetch(SB_URL+'/rest/v1/equipo',{method:'POST',headers:SB_H,body:JSON.stringify(eData)});
     if(!r2.ok){var e2=await r2.text();throw new Error('equipo: '+e2);}
 
-    // Configuracion: upsert sliders e inputs
+    // Configuracion: borrar y reinsertar
     var cfgData=[];
     ['sl-alq','sl-srv','sl-ins','sl-otr','sl-imp','sl-vimp','sl-pfin','sl-cfin','sl-dias','sl-ocup','sl-prec','sl-inf'].forEach(function(k){cfgData.push({clave:k,valor:sv(k)});});
     ['inv-usd','tc'].forEach(function(k){var e=g(k);if(e)cfgData.push({clave:k,valor:parseFloat(e.value)||0});});
-    var r3=await fetch(SB_URL+'/rest/v1/configuracion',{method:'POST',headers:Object.assign({},SB_H,{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(cfgData)});
+    await fetch(SB_URL+'/rest/v1/configuracion?clave=neq.___',{method:'DELETE',headers:SB_H});
+    var r3=await fetch(SB_URL+'/rest/v1/configuracion',{method:'POST',headers:SB_H,body:JSON.stringify(cfgData)});
     if(!r3.ok){var e3=await r3.text();throw new Error('config: '+e3);}
 
     var now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});

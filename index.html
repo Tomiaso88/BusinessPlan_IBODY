@@ -407,7 +407,7 @@ function calc(){
   var fac=avgMon;
   var fijos=sl.alq+sl.srv+sl.ins+sl.sue+sl.otr;
   var cvar=(sv2.tvar*6+si.tvar*6)/12;
-  var imp=fac*sl.vimp*sl.imp,cfin=fac*sl.pfin*sl.cfin;
+  var imp=fac*sl.vimp*sl.imp,cfin=fac*sl.vimp*sl.pfin*sl.cfin;
   var ctot=fijos+cvar+imp+cfin,gan=fac-ctot,mar=fac>0?gan/fac:0;
   var fdia=sl.dias>0?fac/sl.dias:0;
   var contrib=fac-cvar-imp-cfin,peq=contrib>0?(fijos/(contrib/Math.max(fac,1))):0;
@@ -477,7 +477,7 @@ function updEquipo(){
     UNITS.forEach(function(u){byUnit[u.id]={nombre:u.name,color:u.color,tot:0,cant:0};});
     EQUIPO.forEach(function(e){if(byUnit[e.unidad]){byUnit[e.unidad].tot+=costoEmpleado(e);byUnit[e.unidad].cant++;}});
     var totalG=totalSueldos()||1;
-    pu.innerHTML=UNITS.map(function(u){
+    pu.innerHTML=UNITS.filter(function(u){return u.id!=='adm';}).map(function(u){
       var d=byUnit[u.id];if(!d||d.cant===0)return'';
       var pctU=(d.tot/totalG*100).toFixed(0);
       return'<div style="margin-bottom:12px;">'+
@@ -512,7 +512,7 @@ function updDash(c){
   // Verano
   var dv=g('dash-verano');
   if(dv){
-    var ingV=c.sv.tot,ganV=ingV-(c.fijos+c.sv.tvar+ingV*c.sl.vimp*c.sl.imp+ingV*c.sl.pfin*c.sl.cfin);
+    var ingV=c.sv.tot,ganV=ingV-(c.fijos+c.sv.tvar+ingV*c.sl.vimp*c.sl.imp+ingV*c.sl.vimp*c.sl.pfin*c.sl.cfin);
     dv.innerHTML='<div class="rrow"><span class="rlbl">Facturacion mensual</span><span class="rval warn">'+ff(ingV)+'</span></div>'+
       '<div class="rrow"><span class="rlbl">Ingresos 6 meses</span><span class="rval warn">'+ff(ingV*6)+'</span></div>'+
       '<div class="rrow"><span class="rlbl">Costo variable</span><span class="rval neg">'+ff(c.sv.tvar)+'</span></div>'+
@@ -521,7 +521,7 @@ function updDash(c){
   // Invierno
   var di=g('dash-invierno');
   if(di){
-    var ingI=c.si.tot,ganI=ingI-(c.fijos+c.si.tvar+ingI*c.sl.vimp*c.sl.imp+ingI*c.sl.pfin*c.sl.cfin);
+    var ingI=c.si.tot,ganI=ingI-(c.fijos+c.si.tvar+ingI*c.sl.vimp*c.sl.imp+ingI*c.sl.vimp*c.sl.pfin*c.sl.cfin);
     di.innerHTML='<div class="rrow"><span class="rlbl">Facturacion mensual</span><span class="rval blu">'+ff(ingI)+'</span></div>'+
       '<div class="rrow"><span class="rlbl">Ingresos 6 meses</span><span class="rval blu">'+ff(ingI*6)+'</span></div>'+
       '<div class="rrow"><span class="rlbl">Costo variable</span><span class="rval neg">'+ff(c.si.tvar)+'</span></div>'+
@@ -531,7 +531,7 @@ function updDash(c){
   var us=g('unit-summary');
   if(us){
     var totalAnual=Object.values(c.unitAnnual).reduce(function(a,b){return a+b;},0)||1;
-    us.innerHTML=UNITS.map(function(u){
+    us.innerHTML=UNITS.filter(function(u){return u.id!=='adm';}).map(function(u){
       var val=c.unitAnnual[u.id]||0;
       var pctU=(val/totalAnual*100).toFixed(0);
       return'<div class="ucard" style="border-color:'+u.color+';">'+
@@ -545,7 +545,7 @@ function updDash(c){
   // Area chart
   var vc=g('vchart');
   if(vc){
-    var ar=UNITS.map(function(u){return{n:u.name.split(' ')[0],v:c.unitAnnual[u.id]||0,col:u.color};});
+    var ar=UNITS.filter(function(u){return u.id!=='adm';}).map(function(u){return{n:u.name.split(' ')[0],v:c.unitAnnual[u.id]||0,col:u.color};});
     var mx=Math.max.apply(null,ar.map(function(a){return a.v;}))||1;
     vc.innerHTML=ar.map(function(a){return'<div class="vbw"><div class="vbv">'+fm(a.v/12)+'</div><div class="vbt"><div class="vbf" style="height:'+((a.v/mx)*100).toFixed(0)+'%;background:'+a.col+'"></div></div><div class="vbl">'+a.n+'</div></div>';}).join('');
   }
@@ -664,7 +664,7 @@ function updCostSumm(c){
   cs.innerHTML='<div class="rrow"><span class="rlbl">Costos fijos</span><span class="rval warn">'+ff(c.fijos)+'</span></div>'+
     '<div class="rrow"><span class="rlbl">Costos variables (promedio)</span><span class="rval warn">'+ff(c.cvar)+'</span></div>'+
     '<div class="rrow"><span class="rlbl">Impuestos <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' ventas × '+pc(c.sl.imp*100)+')</small></span><span class="rval warn">'+ff(c.imp)+'</span></div>'+
-    '<div class="rrow"><span class="rlbl">Financiamiento</span><span class="rval warn">'+ff(c.cfin)+'</span></div>'+
+    '<div class="rrow"><span class="rlbl">Financiamiento <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' ventas × '+pc(c.sl.pfin*100)+' fin. × '+pc(c.sl.cfin*100)+')</small></span><span class="rval warn">'+ff(c.cfin)+'</span></div>'+
     '<div class="rrow total"><span class="rlbl" style="font-weight:600;color:var(--tbright);">COSTO TOTAL</span><span class="rval neg" style="font-size:18px;">'+ff(c.ctot)+'</span></div>';
 }
 
@@ -797,23 +797,23 @@ async function guardarTodo(){
   setStatus('Guardando...','var(--amber)');
   try{
     // Tratamientos: borrar todo y reinsertar
-    await fetch(SB_URL+'/rest/v1/tratamientos?id=neq.00000000-0000-0000-0000-000000000000',{method:'DELETE',headers:SB_H});
+    await fetch(SB_URL+'/rest/v1/tratamientos?orden=gte.0',{method:'DELETE',headers:SB_H});
     var tData=T.map(function(t,i){return{nombre:t.n,unidad:t.u,precio:t.p,costo_var:t.v,costo_fijo:t.f,turnos_verano:t.tv||0,turnos_invierno:t.ti||0,orden:i};});
     var r1=await fetch(SB_URL+'/rest/v1/tratamientos',{method:'POST',headers:SB_H,body:JSON.stringify(tData)});
-    if(!r1.ok)throw new Error('tratamientos');
+    if(!r1.ok){var e1=await r1.text();throw new Error('tratamientos: '+e1);}
 
     // Equipo: borrar todo y reinsertar
-    await fetch(SB_URL+'/rest/v1/equipo?id=neq.00000000-0000-0000-0000-000000000000',{method:'DELETE',headers:SB_H});
+    await fetch(SB_URL+'/rest/v1/equipo?orden=gte.0',{method:'DELETE',headers:SB_H});
     var eData=EQUIPO.map(function(e,i){return{nombre:e.nombre,puesto:e.puesto,unidad:e.unidad,sueldo:e.sueldo,cargas:e.cargas,orden:i};});
     var r2=await fetch(SB_URL+'/rest/v1/equipo',{method:'POST',headers:SB_H,body:JSON.stringify(eData)});
-    if(!r2.ok)throw new Error('equipo');
+    if(!r2.ok){var e2=await r2.text();throw new Error('equipo: '+e2);}
 
     // Configuracion: upsert sliders e inputs
     var cfgData=[];
     ['sl-alq','sl-srv','sl-ins','sl-otr','sl-imp','sl-vimp','sl-pfin','sl-cfin','sl-dias','sl-ocup','sl-prec','sl-inf'].forEach(function(k){cfgData.push({clave:k,valor:sv(k)});});
     ['inv-usd','tc'].forEach(function(k){var e=g(k);if(e)cfgData.push({clave:k,valor:parseFloat(e.value)||0});});
     var r3=await fetch(SB_URL+'/rest/v1/configuracion',{method:'POST',headers:Object.assign({},SB_H,{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(cfgData)});
-    if(!r3.ok)throw new Error('configuracion');
+    if(!r3.ok){var e3=await r3.text();throw new Error('config: '+e3);}
 
     var now=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     setStatus('&#10003; Guardado '+now,'var(--green)');

@@ -136,11 +136,11 @@ footer{text-align:center;padding:22px;font-family:'Fira Mono',monospace;font-siz
   <!-- Temporadas side by side -->
   <div class="two" style="margin-bottom:14px;">
     <div class="card verano">
-      <div class="ctitle">&#9728; Temporada Verano <span class="season-tag tag-v">Abr – Sep</span></div>
+      <div class="ctitle">&#9728; Temporada Verano <span class="season-tag tag-v">Oct – Mar</span></div>
       <div id="dash-verano"></div>
     </div>
     <div class="card invierno">
-      <div class="ctitle">&#10052; Temporada Invierno <span class="season-tag tag-i">Sep – Feb</span></div>
+      <div class="ctitle">&#10052; Temporada Invierno <span class="season-tag tag-i">Abr – Sep</span></div>
       <div id="dash-invierno"></div>
     </div>
   </div>
@@ -164,8 +164,8 @@ footer{text-align:center;padding:22px;font-family:'Fira Mono',monospace;font-siz
 
   <!-- Season tabs -->
   <div class="season-tabs">
-    <button class="stab sv active" id="stab-v" onclick="showSeason('v',this)">&#9728; Temporada Verano &nbsp;<small style="opacity:0.7;">Abr – Sep &middot; 6 meses</small></button>
-    <button class="stab si" id="stab-i" onclick="showSeason('i',this)">&#10052; Temporada Invierno &nbsp;<small style="opacity:0.7;">Sep – Feb &middot; 6 meses</small></button>
+    <button class="stab sv active" id="stab-v" onclick="showSeason('v',this)">&#9728; Temporada Verano &nbsp;<small style="opacity:0.7;">Oct – Mar &middot; 6 meses</small></button>
+    <button class="stab si" id="stab-i" onclick="showSeason('i',this)">&#10052; Temporada Invierno &nbsp;<small style="opacity:0.7;">Abr – Sep &middot; 6 meses</small></button>
   </div>
 
   <div id="season-v">
@@ -254,6 +254,9 @@ footer{text-align:center;padding:22px;font-family:'Fira Mono',monospace;font-siz
       <div class="srow"><div class="shdr"><span class="sname">Alquiler</span><span class="sval" id="v-alq"></span></div><input type="range" id="sl-alq" min="1000000" max="20000000" step="100000" value="6050000" oninput="upd()"></div>
       <div class="srow"><div class="shdr"><span class="sname">Servicios</span><span class="sval" id="v-srv"></span></div><input type="range" id="sl-srv" min="500000" max="5000000" step="100000" value="2000000" oninput="upd()"></div>
       <div class="srow"><div class="shdr"><span class="sname">Insumos base</span><span class="sval" id="v-ins"></span></div><input type="range" id="sl-ins" min="200000" max="5000000" step="100000" value="1000000" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Pauta comercial (redes sociales)</span><span class="sval" id="v-pauta"></span></div><input type="range" id="sl-pauta" min="0" max="10000000" step="100000" value="0" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Influencers</span><span class="sval" id="v-infl"></span></div><input type="range" id="sl-infl" min="0" max="10000000" step="100000" value="0" oninput="upd()"></div>
+      <div class="srow"><div class="shdr"><span class="sname">Seguros</span><span class="sval" id="v-seg"></span></div><input type="range" id="sl-seg" min="0" max="5000000" step="50000" value="0" oninput="upd()"></div>
       <div class="srow" style="padding:12px;background:var(--bg4);border-radius:2px;">
         <div class="shdr" style="margin-bottom:4px;"><span class="sname">Sueldos totales <small style="color:var(--tdim);">(desde tab Equipo)</small></span><span class="sval" id="v-sue"></span></div>
         <div style="font-size:10px;color:var(--tdim);">Editá los sueldos individuales en la tab <strong style="color:var(--green);">Equipo</strong></div>
@@ -381,7 +384,7 @@ function ff(n){return'$'+Math.round(n).toLocaleString('es-AR');}
 function pc(p){return p.toFixed(1)+'%';}
 function g(id){return document.getElementById(id);}
 function sv(id){var e=g(id);return e?parseFloat(e.value):0;}
-function getSL(){return{alq:sv('sl-alq'),srv:sv('sl-srv'),ins:sv('sl-ins'),sue:totalSueldos(),otr:sv('sl-otr'),vimp:sv('sl-vimp')/100,imp:sv('sl-imp')/100,pfin:sv('sl-pfin')/100,cfin:sv('sl-cfin')/100,dias:sv('sl-dias'),ocup:sv('sl-ocup')/100};}
+function getSL(){return{alq:sv('sl-alq'),srv:sv('sl-srv'),ins:sv('sl-ins'),pauta:sv('sl-pauta'),infl:sv('sl-infl'),seg:sv('sl-seg'),sue:totalSueldos(),otr:sv('sl-otr'),vimp:sv('sl-vimp')/100,imp:sv('sl-imp')/100,pfin:sv('sl-pfin')/100,cfin:sv('sl-cfin')/100,dias:sv('sl-dias'),ocup:sv('sl-ocup')/100};}
 function getUnit(id){return UNITS.find(function(u){return u.id===id;})||UNITS[0];}
 
 // ═══ CALC per season ═══
@@ -405,7 +408,7 @@ function calc(){
   // average monthly (6 months each = 12 total)
   var avgMon=(sv2.tot*6+si.tot*6)/12;
   var fac=avgMon;
-  var fijos=sl.alq+sl.srv+sl.ins+sl.sue+sl.otr;
+  var fijos=sl.alq+sl.srv+sl.ins+sl.pauta+sl.infl+sl.seg+sl.sue+sl.otr;
   var cvar=(sv2.tvar*6+si.tvar*6)/12;
   var imp=fac*sl.vimp*sl.imp,cfin=fac*sl.vimp*sl.pfin*sl.cfin;
   var ctot=fijos+cvar+imp+cfin,gan=fac-ctot,mar=fac>0?gan/fac:0;
@@ -421,7 +424,7 @@ function calc(){
 function upd(){
   var sl=getSL(),c=calc();
   // slider labels
-  var mp={alq:sl.alq,srv:sl.srv,ins:sl.ins,otr:sl.otr};
+  var mp={alq:sl.alq,srv:sl.srv,ins:sl.ins,pauta:sl.pauta,infl:sl.infl,seg:sl.seg,otr:sl.otr};
   Object.keys(mp).forEach(function(k){var e=g('v-'+k);if(e)e.textContent=fm(mp[k]);});
   if(g('v-sue'))g('v-sue').textContent=fm(totalSueldos())+'  ('+EQUIPO.length+' pers.)';
   if(g('v-vimp'))g('v-vimp').textContent=pc(sv('sl-vimp'));
@@ -498,8 +501,8 @@ function updKPIs(c){
   var pos=c.gan>=0;
   var kpis=[
     {l:'Facturacion Promedio',v:fm(c.fac),cls:'g',s:'mensual anualizado'},
-    {l:'Verano Prom. Mensual',v:fm(c.sv.tot),cls:'a',s:'Abr – Sep'},
-    {l:'Invierno Prom. Mensual',v:fm(c.si.tot),cls:'b',s:'Sep – Feb'},
+    {l:'Verano Prom. Mensual',v:fm(c.sv.tot),cls:'a',s:'Oct – Mar'},
+    {l:'Invierno Prom. Mensual',v:fm(c.si.tot),cls:'b',s:'Abr – Sep'},
     {l:'Ganancia Neta',v:fm(c.gan),cls:pos?'g':'r',s:pc(c.mar*100)+' margen'},
     {l:'Punto Equilibrio',v:fm(c.peq),cls:'a',s:'diario minimo'},
     {l:'Ocupacion',v:pc(sv('sl-ocup')),cls:sv('sl-ocup')>=60?'g':'r',s:sv('sl-dias')+' dias/mes'}
@@ -566,6 +569,9 @@ function updDash(c){
       {n:'Financiamiento',v:c.cfin,col:'#E05555'},
       {n:'Alquiler',v:c.sl.alq,col:'#4A9EDB'},
       {n:'Servicios',v:c.sl.srv,col:'#9B59B6'},
+      {n:'Pauta/Redes',v:c.sl.pauta,col:'#E91E8C'},
+      {n:'Influencers',v:c.sl.infl,col:'#FF6B6B'},
+      {n:'Seguros',v:c.sl.seg,col:'#45B7D1'},
       {n:'Otros',v:c.sl.otr,col:'#5A7068'}
     ].filter(function(x){return x.v>0;});
     var total=cs.reduce(function(a,x){return a+x.v;},0)||1;
@@ -610,7 +616,7 @@ function updDash(c){
 
 // ═══ TREATMENT TABLES ═══
 function makeUnitOptions(sel){
-  return UNITS.map(function(u){return'<option value="'+u.id+'"'+(u.id===sel?' selected':'')+'>'+u.name+'</option>';}).join('');
+  return UNITS.filter(function(u){return u.id!=='adm';}).map(function(u){return'<option value="'+u.id+'"'+(u.id===sel?' selected':'')+'>'+u.name+'</option>';}).join('');
 }
 
 function updTables(sl){
@@ -708,10 +714,21 @@ function showSeason(s,btn){
 
 function updCostSumm(c){
   var cs=g('costsumm');if(!cs)return;
-  cs.innerHTML='<div class="rrow"><span class="rlbl">Costos fijos</span><span class="rval warn">'+ff(c.fijos)+'</span></div>'+
+  var detalles='';
+  var items=[
+    {n:'Alquiler',v:c.sl.alq},{n:'Sueldos',v:c.sl.sue},{n:'Servicios',v:c.sl.srv},
+    {n:'Insumos',v:c.sl.ins},{n:'Pauta/Redes',v:c.sl.pauta},{n:'Influencers',v:c.sl.infl},
+    {n:'Seguros',v:c.sl.seg},{n:'Otros',v:c.sl.otr}
+  ];
+  items.forEach(function(it){
+    if(it.v>0)detalles+='<div class="rrow" style="padding:6px 0 6px 16px;"><span class="rlbl" style="font-size:11px;">&#8627; '+it.n+'</span><span class="rval" style="font-size:12px;">'+ff(it.v)+'</span></div>';
+  });
+  cs.innerHTML=
+    '<div class="rrow"><span class="rlbl" style="font-weight:600;color:var(--tbright);">Costos fijos</span><span class="rval warn">'+ff(c.fijos)+'</span></div>'+
+    detalles+
     '<div class="rrow"><span class="rlbl">Costos variables (promedio)</span><span class="rval warn">'+ff(c.cvar)+'</span></div>'+
-    '<div class="rrow"><span class="rlbl">Impuestos <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' ventas × '+pc(c.sl.imp*100)+')</small></span><span class="rval warn">'+ff(c.imp)+'</span></div>'+
-    '<div class="rrow"><span class="rlbl">Financiamiento <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' ventas × '+pc(c.sl.pfin*100)+' fin. × '+pc(c.sl.cfin*100)+')</small></span><span class="rval warn">'+ff(c.cfin)+'</span></div>'+
+    '<div class="rrow"><span class="rlbl">Impuestos <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' × '+pc(c.sl.imp*100)+')</small></span><span class="rval warn">'+ff(c.imp)+'</span></div>'+
+    '<div class="rrow"><span class="rlbl">Financiamiento <small style="color:var(--tdim);">('+pc(c.sl.vimp*100)+' × '+pc(c.sl.pfin*100)+' × '+pc(c.sl.cfin*100)+')</small></span><span class="rval warn">'+ff(c.cfin)+'</span></div>'+
     '<div class="rrow total"><span class="rlbl" style="font-weight:600;color:var(--tbright);">COSTO TOTAL</span><span class="rval neg" style="font-size:18px;">'+ff(c.ctot)+'</span></div>';
 }
 
@@ -857,7 +874,7 @@ async function guardarTodo(){
 
     // Configuracion: borrar y reinsertar
     var cfgData=[];
-    ['sl-alq','sl-srv','sl-ins','sl-otr','sl-imp','sl-vimp','sl-pfin','sl-cfin','sl-dias','sl-ocup','sl-prec','sl-inf'].forEach(function(k){cfgData.push({clave:k,valor:sv(k)});});
+    ['sl-alq','sl-srv','sl-ins','sl-pauta','sl-infl','sl-seg','sl-otr','sl-imp','sl-vimp','sl-pfin','sl-cfin','sl-dias','sl-ocup','sl-prec','sl-inf'].forEach(function(k){cfgData.push({clave:k,valor:sv(k)});});
     ['inv-usd','tc'].forEach(function(k){var e=g(k);if(e)cfgData.push({clave:k,valor:parseFloat(e.value)||0});});
     await fetch(SB_URL+'/rest/v1/configuracion?clave=neq.___',{method:'DELETE',headers:SB_H});
     var r3=await fetch(SB_URL+'/rest/v1/configuracion',{method:'POST',headers:SB_H,body:JSON.stringify(cfgData)});
